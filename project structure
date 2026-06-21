@@ -1,0 +1,148 @@
+cloud-native-payment-system/
+│
+├── README.md
+│
+├── platform/
+│   │
+│   ├── kind/
+│   │   ├── kind-config.yaml
+│   │   ├── create-cluster.sh
+│   │   └── delete-cluster.sh
+│   │
+│   ├── mq/
+│   │   ├── operator-install.sh
+│   │   ├── payment-qm.yaml
+│   │   ├── payment-queues.mqsc
+│   │   ├── payment-channels.mqsc
+│   │   ├── mq-configmap.yaml
+│   │   └── mq-secrets.yaml
+│   │
+│   ├── security/
+│   │   ├── generate-certs.sh
+│   │   ├── root-ca/
+│   │   ├── server-cert/
+│   │   └── client-cert/
+│   │
+│   └── networking/
+│       ├── mq-service.yaml
+│       └── network-policy.yaml
+│
+├── applications/
+│   │
+│   ├── payment-api/
+│   │   ├── src/
+│   │   │   ├── controllers/
+│   │   │   ├── routes/
+│   │   │   ├── services/
+│   │   │   ├── database/
+│   │   │   ├── validators/
+│   │   │   ├── middleware/
+│   │   │   └── app.js
+│   │   │
+│   │   ├── Dockerfile
+│   │   ├── package.json
+│   │   └── .env.example
+│   │
+│   ├── payment-worker/
+│   │   ├── src/
+│   │   │   ├── consumers/
+│   │   │   ├── processors/
+│   │   │   ├── retry/
+│   │   │   ├── dlq/
+│   │   │   ├── services/
+│   │   │   └── worker.js
+│   │   │
+│   │   ├── Dockerfile
+│   │   ├── package.json
+│   │   └── .env.example
+│   │
+│   └── audit-service/
+│       ├── src/
+│       │   ├── consumers/
+│       │   ├── services/
+│       │   └── app.js
+│       │
+│       ├── Dockerfile
+│       ├── package.json
+│       └── .env.example
+│
+├── database/
+│   │
+│   ├── postgres.yaml
+│   ├── schema.sql
+│   ├── seed.sql
+│   └── migrations/
+│
+├── kubernetes/
+│   │
+│   ├── namespaces/
+│   │   └── payment-platform.yaml
+│   │
+│   ├── payment-api/
+│   │   ├── deployment.yaml
+│   │   └── service.yaml
+│   │
+│   ├── payment-worker/
+│   │   ├── deployment.yaml
+│   │   └── service.yaml
+│   │
+│   ├── audit-service/
+│   │   ├── deployment.yaml
+│   │   └── service.yaml
+│   │
+│   ├── postgres/
+│   │   ├── deployment.yaml
+│   │   └── service.yaml
+│   │
+│   ├── configmaps/
+│   └── secrets/
+│
+├── helm/
+│   │
+│   └── payment-platform/
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       └── templates/
+│
+├── client-tests/
+│   │
+│   ├── java-client/
+│   │   ├── MQPaymentProducer.java
+│   │   ├── MQPaymentConsumer.java
+│   │   ├── pom.xml
+│   │   └── run.sh
+│   │
+│   └── python-client/
+│       ├── send-payment.py
+│       ├── receive-payment.py
+│       └── requirements.txt
+│
+├── scripts/
+│   │
+│   ├── 01-create-kind-cluster.sh
+│   ├── 02-install-mq-operator.sh
+│   ├── 03-generate-certificates.sh
+│   ├── 04-deploy-queuemanager.sh
+│   ├── 05-deploy-postgres.sh
+│   ├── 06-deploy-payment-api.sh
+│   ├── 07-deploy-payment-worker.sh
+│   ├── 08-deploy-audit-service.sh
+│   ├── check-status.sh
+│   └── cleanup.sh
+│
+├── docs/
+│   ├── architecture.md
+│   ├── payment-flow.md
+│   ├── mq-setup.md
+│   ├── tls-setup.md
+│   ├── deployment-guide.md
+│   └── troubleshooting.md
+│
+├── diagrams/
+│   ├── overall-architecture.png
+│   ├── payment-processing-flow.png
+│   ├── mq-message-flow.png
+│   └── kubernetes-layout.png
+│
+├── .gitignore
+└── docker-compose.yaml

@@ -1,0 +1,351 @@
+# Phase 1 Overview – Kubernetes Foundation and IBM MQ Setup
+
+## Project
+
+Enterprise Payment Processing Platform
+
+### Technology Stack
+
+* Kubernetes (Kind)
+* IBM MQ
+* Node.js (future phases)
+* PostgreSQL (future phases)
+* Helm
+* Docker
+* TLS/mTLS (future phases)
+
+---
+
+# Objective of Phase 1
+
+The objective of Phase 1 is to establish the messaging infrastructure that will support the entire payment processing platform.
+
+At this stage, we are not building APIs, workers, databases, or payment logic. We are only creating the foundational messaging layer that future services will use.
+
+---
+
+# Architecture After Phase 1
+
+```text
+Kind Cluster
+      ↓
+IBM MQ
+      ↓
+PAYMENTQM
+      ↓
+PAYMENT.REQUEST
+PAYMENT.RESPONSE
+PAYMENT.RETRY
+PAYMENT.DLQ
+AUDIT.LOG
+```
+
+---
+
+# Components Implemented
+
+## 1. Kind Cluster
+
+Kind (Kubernetes in Docker) is used to run a local Kubernetes cluster without any cloud cost.
+
+Purpose:
+
+* Local development environment
+* Simulates a real Kubernetes cluster
+* Hosts all project components
+
+Cluster Structure:
+
+```text
+Control Plane Node
+Worker Node 1
+Worker Node 2
+```
+
+---
+
+## 2. Kubernetes Namespace
+
+Namespace Created:
+
+```text
+payment-platform
+```
+
+Purpose:
+
+* Logical separation of resources
+* Keeps project components isolated
+* Easier management and cleanup
+
+Future resources inside this namespace:
+
+* IBM MQ
+* Payment API
+* Worker Services
+* PostgreSQL
+
+---
+
+## 3. IBM MQ
+
+IBM MQ is the messaging backbone of the project.
+
+Purpose:
+
+* Reliable message delivery
+* Asynchronous communication
+* Decouples services
+
+Instead of services communicating directly:
+
+```text
+Payment API
+      ↓
+Worker
+```
+
+They communicate through MQ:
+
+```text
+Payment API
+      ↓
+IBM MQ
+      ↓
+Worker
+```
+
+Benefits:
+
+* Reliability
+* Scalability
+* Fault tolerance
+* Enterprise-grade messaging
+
+---
+
+## 4. Queue Manager
+
+Queue Manager Name:
+
+```text
+PAYMENTQM
+```
+
+Purpose:
+
+* Manages queues
+* Stores messages
+* Handles client connections
+* Manages channels
+
+Think of the Queue Manager as the MQ server instance that controls all messaging operations.
+
+---
+
+## 5. Payment Queues
+
+### PAYMENT.REQUEST
+
+Stores incoming payment requests.
+
+Example:
+
+```json
+{
+  "transactionId": "TX1001",
+  "amount": 500
+}
+```
+
+---
+
+### PAYMENT.RESPONSE
+
+Stores successful payment results.
+
+---
+
+### PAYMENT.RETRY
+
+Stores temporarily failed payment messages that can be retried later.
+
+Examples:
+
+* Database unavailable
+* External service timeout
+* Temporary processing error
+
+---
+
+### PAYMENT.DLQ
+
+Dead Letter Queue.
+
+Stores permanently failed messages that require investigation.
+
+Examples:
+
+* Invalid payment data
+* Invalid account information
+* Corrupted messages
+
+---
+
+### AUDIT.LOG
+
+Stores audit-related events.
+
+Examples:
+
+* Payment received
+* Payment processed
+* Payment failed
+* Payment retried
+
+---
+
+## 6. MQ Channel
+
+Channel Created:
+
+```text
+PAYMENT.SVRCONN
+```
+
+Purpose:
+
+* Allows external applications to connect to IBM MQ
+* Used by future Node.js services
+* Acts as the communication endpoint
+
+Future Connection Flow:
+
+```text
+Node.js API
+      ↓
+PAYMENT.SVRCONN
+      ↓
+IBM MQ
+```
+
+---
+
+## 7. Helm
+
+IBM MQ is deployed using Helm.
+
+Purpose:
+
+* Simplifies Kubernetes deployments
+* Reduces manual YAML management
+* Makes upgrades easier
+
+Instead of creating many Kubernetes resources manually, Helm deploys and manages them as a package.
+
+---
+
+## 8. Persistent Storage
+
+Persistence is enabled for IBM MQ.
+
+Purpose:
+
+* Prevent message loss
+* Survive pod restarts
+* Maintain queue data
+
+Without persistence:
+
+```text
+Pod Failure
+      ↓
+Messages Lost
+```
+
+With persistence:
+
+```text
+Pod Failure
+      ↓
+Messages Retained
+```
+
+This is critical for payment systems.
+
+---
+
+# Current Status
+
+At the end of Phase 1, the platform contains:
+
+* Kind Kubernetes Cluster
+* IBM MQ Deployment
+* PAYMENTQM Queue Manager
+* Payment Queues
+* MQ Channel
+* Persistent Storage
+* Kubernetes Namespace
+* Helm-based Deployment
+
+---
+
+# Components Not Yet Implemented
+
+The following components will be built in future phases:
+
+### Payment API
+
+Node.js service that receives payment requests.
+
+### Payment Workers
+
+Consumers that process payment messages.
+
+### PostgreSQL
+
+Stores transactions and audit records.
+
+### TLS/mTLS
+
+Secures communication between clients and IBM MQ.
+
+### Retry Logic
+
+Handles temporary failures.
+
+### Dead Letter Processing
+
+Handles permanent failures.
+
+### CI/CD Pipeline
+
+Automated build and deployment process.
+
+---
+
+# Phase 2 Preview
+
+Phase 2 introduces the Payment API Service.
+
+Architecture after Phase 2:
+
+```text
+Client
+   ↓
+Node.js Payment API
+   ↓
+IBM MQ
+   ↓
+PAYMENT.REQUEST
+```
+
+Responsibilities:
+
+1. Accept payment requests
+2. Validate incoming data
+3. Publish messages into MQ
+4. Generate transaction identifiers
+5. Persist transaction metadata
+
+This will be the first component that actively sends messages into IBM MQ.

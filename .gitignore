@@ -1,0 +1,79 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage
+coverage/
+
+# Build Output
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Kubernetes
+*.kubeconfig
+kubeconfig
+
+# Helm
+charts/*/charts/
+
+# Docker
+.docker/
+
+# Database Data
+postgres-data/
+*.db
+
+# IBM MQ Data
+mq-data/
+*.mqsc.bak
+
+# Secrets & Certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+
+# Temporary Files
+tmp/
+temp/
+.cache/
+
+# Terraform (if you add IaC later)
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+
+# Node Runtime
+pids/
+*.pid
+*.pid.lock
+
+# Test Results
+test-results/
+reports/
+
+# Mac/Linux Swap Files
+*.swp
+*.swo

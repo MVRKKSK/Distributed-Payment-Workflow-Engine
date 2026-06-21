@@ -1,0 +1,17 @@
+queueManager:
+  name: PAYMENTQM
+
+license: accept
+
+image:
+  repository: icr.io/ibm-messaging/mq
+
+persistence:
+  enabled: true
+  size: 2Gi
+
+service:
+  type: ClusterIP
+
+web:
+  enabled: true
