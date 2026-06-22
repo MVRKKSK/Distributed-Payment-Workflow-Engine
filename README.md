@@ -383,6 +383,6 @@ transaction_id                         status
 
 # Author
 
-Srinivas Ganta
+Kautilya Miryala
 
 Enterprise Payment Processing Platform built using IBM MQ, Kubernetes, PostgreSQL, and Node.js.
