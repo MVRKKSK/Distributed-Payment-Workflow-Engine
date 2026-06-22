@@ -73,77 +73,56 @@ function consumeMessages(callback) {
 }
 function receiveLoop(hObj, callback) {
 
-    console.log("Waiting for messages...");
+    setInterval(() => {
 
-    const mqmd = new mq.MQMD();
+        try {
 
-    const gmo = new mq.MQGMO();
+            const mqmd = new mq.MQMD();
 
-   gmo.Options =
-    MQC.MQGMO_NO_WAIT |
-    MQC.MQGMO_CONVERT;
+            const gmo = new mq.MQGMO();
 
-    console.log("BEFORE GET");
+            gmo.Options =
+                MQC.MQGMO_NO_WAIT;
 
-    mq.Get(
-        hObj,
-        mqmd,
-        gmo,
-        (err, data) => {
+            const buf =
+                Buffer.alloc(10240);
 
-            console.log("GET CALLBACK HIT");
+            const len =
+                mq.GetSync(
+                    hObj,
+                    mqmd,
+                    gmo,
+                    buf
+                );
 
-            if (err) {
+            const message =
+                buf
+                .slice(0, len)
+                .toString();
 
-                if (
-                    err.mqrc !==
-                    MQC.MQRC_NO_MSG_AVAILABLE
-                ) {
-
-                    console.log("GET ERROR");
-                    console.log(err);
-                }
-
-            } else {
-
-                try {
-
-                    const message =
-                        data.toString();
-
-                    console.log(
-                        "MESSAGE RECEIVED:"
-                    );
-
-                    console.log(message);
-
-                    const payment =
-                        JSON.parse(message);
-
-                    console.log(
-                        "PAYMENT OBJECT:"
-                    );
-
-                    console.log(payment);
-
-                    callback(payment);
-
-                } catch(ex) {
-
-                    console.log(
-                        "JSON ERROR"
-                    );
-
-                    console.log(ex);
-                }
-            }
-
-            receiveLoop(
-                hObj,
-                callback
+            console.log(
+                "MESSAGE RECEIVED:"
             );
+
+            console.log(message);
+
+            const payment =
+                JSON.parse(message);
+
+            callback(payment);
+
+        } catch (err) {
+
+            if (
+                err.mqrc !==
+                MQC.MQRC_NO_MSG_AVAILABLE
+            ) {
+
+                console.log(err);
+            }
         }
-    );
+
+    }, 1000);
 }
 module.exports = {
     consumeMessages
