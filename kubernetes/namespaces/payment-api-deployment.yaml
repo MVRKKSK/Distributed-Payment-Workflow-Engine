@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: payment-api
+  namespace: payment-platform
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: payment-api
+
+  template:
+    metadata:
+      labels:
+        app: payment-api
+
+    spec:
+      containers:
+      - name: payment-api
+        image: payment-api:1.0
+        imagePullPolicy: Never
+
+        ports:
+        - containerPort: 3000
+
+        env:
+        - name: PORT
+          value: "3000"
+
+        - name: DB_HOST
+          value: "postgres-service"
+
+        - name: DB_PORT
+          value: "5432"
+
+        - name: DB_NAME
+          value: "paymentdb"
+
+        - name: DB_USER
+          value: "paymentuser"
+
+        - name: DB_PASSWORD
+          value: "paymentpass"
+
+        - name: MQ_QUEUE_MANAGER
+          value: "PAYMENTQM"
+
+        - name: MQ_CONN_NAME
+          value: "paymentqm-ibm-mq(1414)"
+
+        - name: MQ_CHANNEL
+          value: "PAYMENT.SVRCONN"
+
+        - name: REQUEST_QUEUE
+          value: "PAYMENT.REQUEST"
+
+        - name: RESPONSE_QUEUE
+          value: "PAYMENT.RESPONSE"
+
+        - name: RETRY_QUEUE
+          value: "PAYMENT.RETRY"
+
+        - name: DLQ_QUEUE
+          value: "PAYMENT.DLQ"
+
+        - name: AUDIT_QUEUE
+          value: "AUDIT.LOG"

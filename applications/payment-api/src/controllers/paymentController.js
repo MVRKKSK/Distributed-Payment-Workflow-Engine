@@ -30,10 +30,27 @@ async function createPayment(req, res) {
         await saveTransaction(payment);
 
         console.log("Saved to DB");
+        await publishMessage(
+            process.env.AUDIT_QUEUE,
+            {
+                transactionId:
+                    payment.transactionId,
 
+                eventType:
+                    "PAYMENT_RECEIVED",
+
+                customerId:
+                    payment.customerId,
+
+                amount:
+                    payment.amount
+            }
+        );
         await publishPayment(payment);
 
         console.log("Published to MQ");
+
+
 
         return res.status(201).json({
             transactionId: payment.transactionId,
@@ -56,6 +73,23 @@ async function handlePayment(payment) {
         "PROCESSING"
     );
 
+    await publishMessage(
+        process.env.AUDIT_QUEUE,
+        {
+            transactionId:
+                payment.transactionId,
+
+            eventType:
+                "PAYMENT_PROCESSING",
+
+            customerId:
+                payment.customerId,
+
+            amount:
+                payment.amount
+        }
+    );
+
     const result =
         await processPayment(payment);
 
@@ -70,6 +104,17 @@ async function handlePayment(payment) {
 
         await incrementRetry(
             payment.transactionId
+        );
+
+        await publishMessage(
+            process.env.AUDIT_QUEUE,
+            {
+                transactionId:
+                    payment.transactionId,
+
+                eventType:
+                    "PAYMENT_RETRYING"
+            }
         );
 
         await publishMessage(
@@ -90,6 +135,17 @@ async function handlePayment(payment) {
         );
 
         await publishMessage(
+            process.env.AUDIT_QUEUE,
+            {
+                transactionId:
+                    payment.transactionId,
+
+                eventType:
+                    "PAYMENT_FAILED"
+            }
+        );
+
+        await publishMessage(
             process.env.DLQ_QUEUE,
             payment
         );
@@ -103,8 +159,22 @@ async function handlePayment(payment) {
     );
 
     await publishMessage(
+        process.env.AUDIT_QUEUE,
+        {
+            transactionId:
+                payment.transactionId,
+
+            eventType:
+                "PAYMENT_COMPLETED"
+        }
+    );
+
+    await publishMessage(
         process.env.RESPONSE_QUEUE,
-        payment
+        {
+            ...payment,
+            status: result.status
+        }
     );
 }
 module.exports = {
