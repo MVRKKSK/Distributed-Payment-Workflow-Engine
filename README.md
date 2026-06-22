@@ -352,22 +352,6 @@ transaction_id                         status
 
 ---
 
-# Future Enhancements
-
-* TLS-secured IBM MQ communication
-* Mutual TLS authentication
-* Retry Worker deployment
-* Dead Letter Queue processing
-* Fraud Detection Service
-* Audit Worker deployment
-* Prometheus Monitoring
-* Grafana Dashboards
-* OpenAPI/Swagger Documentation
-* IBM MQ Native HA
-* CI/CD Pipeline using GitHub Actions
-
----
-
 # Key Features
 
 * Event-driven architecture
